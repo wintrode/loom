@@ -1,0 +1,70 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Loom</title>
+  
+  <!-- Bootstrap -->
+    <link href="{{ url_for('static', filename='css/bootstrap3.4.1.min.css') }}" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='css/loom.css')}}" rel="stylesheet"/>
+    <script src="{{ url_for('static', filename='js/chroma.min.js')}}"></script>
+  
+</head>
+<body>
+
+  <!-- use an include -->
+  {% include 'nav.html' %}
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-2 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">User Info</a></li>
+            <li><a href="#">Advanced</a></li>
+          </ul>
+        </div>
+        <div class="col-sm-10 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">Profile</h1>
+
+          <div class="row placeholders">
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+          </div>
+
+          <h2 class="sub-header">Info</h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+		  <th>#</th>
+		  <th>Key</th>
+		  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+		  <td>A</td>
+		  <td>B</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+
+</body>
+  
+</html>
