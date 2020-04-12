@@ -1,55 +1,87 @@
-<!doctype html>
-<html>
-    <head>
-        <title>Neovis.js Simple Example</title>
-        <style type="text/css">
-            html, body {
-                font: 16pt arial;
-            }
-    
-            #viz {
-                width: 900px;
-                height: 700px;
-                border: 1px solid lightgray;
-                font: 22pt arial;
-            }
-        </style> 
+<style type="text/css">
+  #viz {
+      width: 900px;
+      height: 700px;
+      border: 1px solid lightgray;
+      font: 22pt arial;
+  }
+</style> 
 
-	<!--<script src="https://rawgit.com/neo4j-contrib/neovis.js/master/dist/neovis.js"></script>-->
-	<script src="{{ url_for('static', filename='js/neovis.js')}}"></script>
-	<script type="text/javascript">
+<div style="display: inline; padding: 20px;" >
+  <label for="Task">Task</label>
+  <input class="inline-input" type="checkbox" value="Task" name="Task" checked onclick="draw()"/>
+  <label for="Goal">Goal</label>
+  <input class="inline-input" type="checkbox" value="Goal" name="Goal" checked onclick="draw()"/>
+  <label for="Idea">Idea</label>
+  <input class="inline-input" type="checkbox" value="Idea" name="Idea" onclick="draw()"/>
+</div>
+<div onload="draw()">
+  <div id="viz"></div>
+</div>
+	
+<!--<script src="https://rawgit.com/neo4j-contrib/neovis.js/master/dist/neovis.js"></script>-->
+<script src="{{ url_for('static', filename='js/neovis.js')}}"></script>
+<script type="text/javascript">
+  
+  var viz;
 
-        var viz;
+  function draw() {
+      var config = {
+          container_id: "viz",
+          server_url: "{{ data.getBolt() }}",
+	  server_user: "{{ data.getCreds()[0]}}" ,
+          server_password: "{{ data.getCreds()[1]}}" ,
+          labels: {
+              "Task": {
+                  "caption": "title",
+              },
+	      "Goal": {
+		  "caption": "title",
+              }
+          },
+          relationships: {
+              "depends_on": {
+                  "caption": true
+              }
+          },
+	  initial_cypher: "MATCH (n) RETURN n",
+	  arrows : true
+	  
+      };
 
-        function draw() {
-            var config = {
-                container_id: "viz",
-                server_url: "{{ data.getBolt() }}",
-		server_user: "{{ data.getCreds()[0]}}" ,
-                server_password: "{{ data.getCreds()[1]}}" ,
-                labels: {
-                    "Task": {
-                        "caption": "name",
-                    }
-                },
-                relationships: {
-                    "DependsOn": {
-                        "caption": false
-                    }
-                },
-                //initial_cypher: "MATCH (n)-[r:SENDS_TO_MAC]->(m) RETURN *"
-		initial_cypher: "MATCH (n) RETURN *"
-            };
+      var tags = document.getElementsByTagName("input");
+      var cypher = "MATCH (a)-[b:depends_on]->(c)";
+      var ttypes = 0;
+      var nodes = 'defghijklmnopqrstuv';
+      for (var i = 0; i< tags.length; i++) {
+	  if (tags[i].checked) {
+	      /*if (ttypes > 0) {
+		  cypher += "),(";
+	      }
+	      cypher += nodes[ttypes]+ ":" + tags[i].value + ")-[" +
+		  nodes[ttypes+1]+ ":depends_on]->(" + nodes[ttypes+2]+
+		  ":" + tags[i].value + "),(" + nodes[ttypes+3] +":" +tags[i].value;
+	      ttypes+=4;
+	      */
+	      cypher += ",(" + nodes[ttypes] + ":" + tags[i].value + ")";
+	      ttypes++;
+	  }
+	  
+	  //WHERE o:AssetStore OR o:DAMUserGroup
+      }
+      cypher += " RETURN *";
 
-            viz = new NeoVis.default(config);
-            viz.render();
-        }
-    </script>
+      //cypher =  "MATCH (:Task)-[:depends_on]->(:Task), (:Task), (:Goal)  RETURN *",
+      console.log("Drawing " + cypher);
 
-    </head>
-    <body onload="draw()">
-        <div id="viz"></div>
-    </body>    
-</html>
+      config.initial_cypher = cypher;
+      // update config based on checkboxes
+      viz = new NeoVis.default(config);
+      viz.render();
+  }
+  
+  draw();
+</script>
+
  
 

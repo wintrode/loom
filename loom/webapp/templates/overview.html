@@ -1,0 +1,133 @@
+{% if active == "goals" %}
+{% set dtype="Goal" %}
+{% elif active == "ideas" %}
+{% set dtype="Idea" %}
+{% else %}
+{% set dtype="Task" %}
+{% endif %}
+
+          <h1 class="page-header">
+	    Dashboard
+	  </h1>
+          <div class="row placeholders">
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="120" height="120" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="120" height="120" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="120" height="120" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="120" height="120" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+          </div>
+
+          <h2 class="sub-header" id="taskhead">
+	    <form action="{{curreq}}" method="get">
+	      <span style="display:inline;" >{{dtype}} List </span>
+	      <span style="font-size: 12pt"> filter by : {{curfilters}} : </span
+	      <span id="filter-string" style="display:inline;">
+	      <select name="newfilter" id="filter-select" onchange="this.form.submit()">
+	      </select>
+	      <input type="hidden" name="filters" value="{{curfilters}}"/>
+	      </span>
+	      </form>
+	  </h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr> {% for (h,f) in view.getHeaders(): %}
+		  <th>{{h}}</th>
+		  {% endfor %}
+		</tr>
+              </thead>
+              <tbody>
+		{% for task in data.getTopTasks(ttype=dtype): %}
+                <tr id="task-row-{{task.idx}}" class="{{view.get_checked_style(task)}}">
+		  {% for (h,a) in view.getHeaders(): %}
+		  {% if h == "Done" %}
+		  <td>
+		    <input id="task-done-{{task.idx}}" type="checkbox" {% if task.complete %}checked {% endif %} 
+			   onclick="mark_complete('Task',{{task.idx}})"> </input>
+		    <input type="hidden" name="id-{{task.id}}" id="task-id-{{task.idx}}" value="{{task.id}}"/>
+		  </td>
+		  {% else %}
+                  <td style="{{view.get_style(a)}}">
+		    {% autoescape false %}
+		    {{ view.format(a, task.getAttribute(a), task.id) }}
+		    {% endautoescape %}
+		  </td>
+		  {% endif %}
+		  {% endfor %}
+                </tr>
+		{% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+	  <!-- The Modal -->
+	  <div id="edit_model" class="modal">
+	    
+	    <!-- Modal content -->
+	    <div id="edit_content" class="modal-content">
+	      <span class="close" onclick="close_window()">&times;</span>
+	      <form id="edit_form">
+		<h3 style="display: inline;" > Edit   </h3>
+		<div id="edit_form" >
+		  <table border=0 class="edittable" width="100%">
+		    <tr>
+		      <td colspan=3><input id="edit_title" type="text" name="title"></input> </td>
+		    </tr>
+		    <tr> <td width="50%">Description: <td/><td colspan=2></td> </tr>
+		    <tr> <td colspan=3> <textarea id="edit_desc" rows="3" cols="20" name="desc"></textarea> <td/> </tr>
+		    <tr>
+		      <td colspan=2>Due date: </td>
+		      <td width="25%">
+			<input type="date" id="edit_due_date" name="due_date"
+			       value="" min="{{view.today()}}" max="{{view.calendar_max()}}">
+		      <td/>
+		    </tr>
+		    <tr><td> Labels: <br/>
+			<select id="edit_labelSelect" multiple size="3" name="labels">
+			</select>
+		      </td>
+		      <td>&nbsp; </td>
+		      <td valign="bottom"> <br/> New label <br/>
+			<input id="edit_newlabel" type="text" name="newlabel"></input>
+		      </td>
+		    </tr>
+		    <tr><td></td><td></td>
+		      <td align="center">
+			<input type="hidden" id="edit_uid" value=""/>
+			<input type="hidden" id="edit_ttype" value="{{view.ttype}}"/>
+			<button onclick="update_node_form()" type="button">Update</button>
+		    </td></tr>
+		  </table>
+		</div>
+	      </form>
+	    </div>
+
+	  </div>
+	  
+	  <script>
+	    var select = document.getElementById('filter-select');
+	    {% autoescape false %}
+	    var labels = {{ view.get_filter_list(data) }} ;
+	    {% endautoescape %}
+	    for (var i = 0; i<labels.length; i+=2){
+		var opt = document.createElement('option');
+		opt.value = labels[i];
+		opt.innerHTML = labels[i+1];
+		select.appendChild(opt);
+	    }
+	  </script>

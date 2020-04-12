@@ -1,6 +1,8 @@
 from py2neo import Graph, Node, Relationship, NodeMatcher
 import sys
-
+import uuid
+from datetime import datetime as dt
+import loom
 
 def format(n) :
     return str(n)
@@ -44,14 +46,39 @@ while resp != None :
         if len(args) > 1 :
             type=args[1]
         nodes = list_nodes(graph, type=type)
-        
+        for n in nodes :
+            if 'id' not in n :
+                n['id']=uuid.uuid1().hex[:16]
+                graph.push(n)
+            if 'added' not in n :
+                n['added'] = dt.now().strftime(loom.ISOFMT)
+                graph.push(n)
+            if 'complete' not in n :
+                n['complete'] = False
+                graph.push(n)
+                
     elif args[0] == "del" :
         if len(args) > 1 and args[1] == "all" :
             sys.stderr.write("Are you sure? (y/n)\n")
             resp=prompt()
             if (resp == "y") :
                 graph.delete_all()
-            
+        elif len(args) > 1 :                        
+            n = int(args[1])-1
+            if n < len(nodes) :
+                print("Deleting Task('%s')" %(nodes[n]['title']))
+                graph.delete(nodes[n])
+
+
+    elif args[0] == "dep" :
+        if len(args) > 1 :
+            tgt = int(args[1])-1
+            for dep in args[2:] :
+                n = int(dep)-1
+                if n < len(nodes) and tgt < len(nodes):
+                    print("Task('%s') <- Task('%s')" %(nodes[tgt]['title'], nodes[n]['title']))
+                    a_dep_b = Relationship(nodes[tgt], "depends_on", nodes[n])
+                    graph.create(a_dep_b)
 
     elif args[0] == "done" :
         if len(args) > 1 :
@@ -82,7 +109,8 @@ while resp != None :
         description = "\n".join(desc)
         add_task(graph, title, type=type, description = description)
         
-        
+    elif args[0] == "quit" or args[0] == "exit" :
+        break
         
         
     resp=prompt()

@@ -7,6 +7,7 @@
     <link href="{{ url_for('static', filename='css/bootstrap3.4.1.min.css') }}" rel="stylesheet"/>
     <link href="{{ url_for('static', filename='css/loom.css')}}" rel="stylesheet"/>
     <script src="{{ url_for('static', filename='js/chroma.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/loom.js')}}"></script>
   
 </head>
 <body>
@@ -15,79 +16,57 @@
 
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-2 col-md-2 sidebar">
+        <div id="mysidebar" class="col-sm-2 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
 	    {% autoescape false %}
             {{ view.getNavItem(active, 'dashboard', 'Overview') }}
-	    {{ view.getNavItem(active, 'graph', 'Graph View') }}
 	    {{ view.getNavItem(active, 'goals', 'Goals') }}
-	    {{ view.getNavItem(active, 'projects', 'Projects') }}
+	    {{ view.getNavItem(active, 'ideas', 'Ideas') }}
+	    {{ view.getNavItem(active, 'graph', 'Graph View') }}
 	    {% endautoescape %}
           </ul>
 	  <form action="{{curreq}}" method="post">
-	    <h3> Quick Add </h3>
-	    Task: <br/>
+	    <header >
+	      <h3 style="display: inline;" > Quick Add  </h3>
+	      <span style="display: inline-block; float: right;">
+		<input class="tgl tgl-flat" id="cb4" type="checkbox" onclick="toggle_element('quickadd')"/>
+		<label class="tgl-btn" for="cb4"></label>
+	      </span>
+	    </header>
+	    <div id="quickadd" style="display: none;" >
+	      <span style="display: inline;"> Title for:&nbsp; </span>
+	      <span style="display:inline-block; float:right;">
+		  <select id="typeSelect" name="nodeType" onchange="type_selected()">
+		    <option value="Task">Task</option>
+		    <option value="Goal">Goal</option>
+		    <option value="Idea">Idea</option>
+		  </select>
+	      </span><br/>
 	    <input type="text" name="title"></input> <br/>
 	    Description: <br/>
 	    <textarea rows="3" cols="20" name="desc"></textarea> <br/>
+	    Due date: <br/>
+	    <input type="date" id="due_date" name="due_date"
+		   value="" min="{{view.today()}}" max="{{view.calendar_max()}}"> <br/>
 	    Labels: <br/>
 	    <select id="labelSelect" multiple size="3" name="labels">  
 	    </select> <br/>
+	    <input type="text" name="newlabel"></input>
 	    <input type="submit"></input>
 	    <input type="hidden" name="view" value="{{active}}"></input>
-	    <input type="hidden" name="action" value="addtask"></input>
+	    <input type="hidden" name="action" value="addnode"></input>
+	    </div>
 	  </form>
         </div>
-        <div class="col-sm-10 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">
-	    Dashboard
-	    <span style="font-size: 12pt">	  put filter here...</span>
-	  </h1>
-          <div class="row placeholders">
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
-            </div>
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
-            </div>
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
-            </div>
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
-            </div>
-          </div>
-
-          <h2 class="sub-header">Task List</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-		  {% for (h,f) in view.getHeaders(): %}
-                  <th>{{h}}</th>
-		  {% endfor %}
-                </tr>
-              </thead>
-              <tbody>
-		{% for task in data.getTopTasks(): %}
-                <tr>
-		  {% for (h,a) in view.getHeaders(): %}
-                  <td>{{ task.getAttribute(a) }}</td>
-		  {% endfor %}
-                </tr>
-		{% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <div id="mymain" class="col-sm-10 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+	  {% if active == "dashboard" or active == "goals" or active=="ideas" %}
+	  {% include 'overview.html' %}
+	  {% elif active == "graph" %}
+	  {% include 'graph.html' %}
+	  {% else %}
+	  {% include 'overview.html' %}
+	  {% endif %}
+	</div>
       </div>
     </div>
 
